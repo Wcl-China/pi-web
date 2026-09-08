@@ -21,14 +21,14 @@ function request(body) {
 }
 
 function installRunningSubagent(t) {
-  const previousRegistry = globalThis.__piSessions;
-  const previousRuns = globalThis.__piSubagentRuns;
+  const previousRegistry = globalThis.__jiyunSessions;
+  const previousRuns = globalThis.__jiyunSubagentRuns;
   let running = true;
   const steered = [];
   let aborts = 0;
   const entries = [{
     type: "custom",
-    customType: "pi-web:subagent",
+    customType: "jiyun-web:subagent",
     id: "meta",
     parentId: null,
     timestamp: "2026-01-01T00:00:00.000Z",
@@ -44,8 +44,8 @@ function installRunningSubagent(t) {
       createdAt: "2026-01-01T00:00:00.000Z",
     },
   }];
-  globalThis.__piSubagentRuns = new Map();
-  globalThis.__piSessions = new Map([[id, {
+  globalThis.__jiyunSubagentRuns = new Map();
+  globalThis.__jiyunSessions = new Map([[id, {
     isAlive: () => true,
     isRunning: () => running,
     sessionFile: `/tmp/${id}.jsonl`,
@@ -56,8 +56,8 @@ function installRunningSubagent(t) {
     },
   }]]);
   t.after(() => {
-    globalThis.__piSessions = previousRegistry;
-    globalThis.__piSubagentRuns = previousRuns;
+    globalThis.__jiyunSessions = previousRegistry;
+    globalThis.__jiyunSubagentRuns = previousRuns;
   });
   return {
     steered,
@@ -99,13 +99,13 @@ test("subagent route validates actions and rejects commands after completion", a
 });
 
 test("subagent GET returns 404 for an unknown session", async (t) => {
-  const previousRegistry = globalThis.__piSessions;
-  const previousRuns = globalThis.__piSubagentRuns;
-  globalThis.__piSessions = new Map();
-  globalThis.__piSubagentRuns = new Map();
+  const previousRegistry = globalThis.__jiyunSessions;
+  const previousRuns = globalThis.__jiyunSubagentRuns;
+  globalThis.__jiyunSessions = new Map();
+  globalThis.__jiyunSubagentRuns = new Map();
   t.after(() => {
-    globalThis.__piSessions = previousRegistry;
-    globalThis.__piSubagentRuns = previousRuns;
+    globalThis.__jiyunSessions = previousRegistry;
+    globalThis.__jiyunSubagentRuns = previousRuns;
   });
 
   const missingId = `missing-subagent-${Date.now()}`;

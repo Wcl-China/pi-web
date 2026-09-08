@@ -8,7 +8,7 @@ import {
   type PackageSource,
   type ResolvedPaths,
   type ResolvedResource,
-} from "@earendil-works/pi-coding-agent";
+} from "@jiyun-ai/jiyun-coding-agent";
 import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/file-access";
 import { hasJsonContentType, isApiRequestAllowed } from "@/lib/request-security";
 import { getProjectTrustStatus } from "@/lib/project-trust";

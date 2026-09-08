@@ -1,7 +1,7 @@
 import {
   SessionManager,
   getAgentDir,
-} from "@earendil-works/pi-coding-agent";
+} from "@jiyun-ai/jiyun-coding-agent";
 import { closeSync, type Dirent, fstatSync, openSync, readSync } from "fs";
 import { readdir } from "fs/promises";
 import { isAbsolute, join, normalize as normalizePath, relative, resolve as resolvePath, sep } from "path";
@@ -177,39 +177,39 @@ async function loadAllSessions(): Promise<SessionInfo[]> {
 
 export async function listAllSessions(options: { force?: boolean } = {}): Promise<SessionInfo[]> {
   if (options.force) invalidateSessionListCache();
-  const generation = globalThis.__piSessionListGeneration ?? 0;
+  const generation = globalThis.__jiyunSessionListGeneration ?? 0;
 
   // Return cached result if still fresh (avoids re-scanning session files
   // and re-spawning git processes on every page load).
-  if (globalThis.__piSessionListCache && Date.now() - globalThis.__piSessionListCache.ts < SESSION_LIST_CACHE_TTL_MS) {
-    return globalThis.__piSessionListCache.data;
+  if (globalThis.__jiyunSessionListCache && Date.now() - globalThis.__jiyunSessionListCache.ts < SESSION_LIST_CACHE_TTL_MS) {
+    return globalThis.__jiyunSessionListCache.data;
   }
 
   // Coalescing dedup: concurrent callers share the same in-flight promise
   // only while it belongs to the current cache generation.
-  if (globalThis.__piSessionListPromise && globalThis.__piSessionListPromiseGeneration === generation) {
-    return globalThis.__piSessionListPromise;
+  if (globalThis.__jiyunSessionListPromise && globalThis.__jiyunSessionListPromiseGeneration === generation) {
+    return globalThis.__jiyunSessionListPromise;
   }
 
   const loadPromise = loadAllSessions().then((data) => {
     // If a mutation invalidated this scan, make this caller join (or start) a
     // scan for the current generation. Returning the stale result here made a
     // refresh race indistinguishable from a successful refresh.
-    if ((globalThis.__piSessionListGeneration ?? 0) !== generation) {
+    if ((globalThis.__jiyunSessionListGeneration ?? 0) !== generation) {
       return listAllSessions();
     }
-    globalThis.__piSessionListCache = { data, ts: Date.now() };
+    globalThis.__jiyunSessionListCache = { data, ts: Date.now() };
     return data;
   });
   const trackedPromise = loadPromise.finally(() => {
-    if (globalThis.__piSessionListPromise === trackedPromise) {
-      globalThis.__piSessionListPromise = undefined;
-      globalThis.__piSessionListPromiseGeneration = undefined;
+    if (globalThis.__jiyunSessionListPromise === trackedPromise) {
+      globalThis.__jiyunSessionListPromise = undefined;
+      globalThis.__jiyunSessionListPromiseGeneration = undefined;
     }
   });
 
-  globalThis.__piSessionListPromise = trackedPromise;
-  globalThis.__piSessionListPromiseGeneration = generation;
+  globalThis.__jiyunSessionListPromise = trackedPromise;
+  globalThis.__jiyunSessionListPromiseGeneration = generation;
   return trackedPromise;
 }
 
@@ -217,12 +217,12 @@ export async function listAllSessions(options: { force?: boolean } = {}): Promis
 // Session path caches, stored in globalThis for hot-reload safety.
 // ============================================================================
 declare global {
-  var __piSessionPathCache: Map<string, string> | undefined;
-  var __piPathToSessionIdCache: Map<string, string> | undefined;
-  var __piSessionListPromise: Promise<SessionInfo[]> | undefined;
-  var __piSessionListPromiseGeneration: number | undefined;
-  var __piSessionListGeneration: number | undefined;
-  var __piSessionListCache: { data: SessionInfo[]; ts: number } | undefined;
+  var __jiyunSessionPathCache: Map<string, string> | undefined;
+  var __jiyunPathToSessionIdCache: Map<string, string> | undefined;
+  var __jiyunSessionListPromise: Promise<SessionInfo[]> | undefined;
+  var __jiyunSessionListPromiseGeneration: number | undefined;
+  var __jiyunSessionListGeneration: number | undefined;
+  var __jiyunSessionListCache: { data: SessionInfo[]; ts: number } | undefined;
 }
 
 const SESSION_LIST_CACHE_TTL_MS = 30_000;
@@ -313,22 +313,22 @@ function findSessionIdByPath(filePath: string): string | undefined {
 }
 
 export function invalidateSessionListCache(): void {
-  globalThis.__piSessionListGeneration = (globalThis.__piSessionListGeneration ?? 0) + 1;
-  globalThis.__piSessionListCache = undefined;
+  globalThis.__jiyunSessionListGeneration = (globalThis.__jiyunSessionListGeneration ?? 0) + 1;
+  globalThis.__jiyunSessionListCache = undefined;
 }
 
 export function getSessionListVersion(): number {
-  return globalThis.__piSessionListGeneration ?? 0;
+  return globalThis.__jiyunSessionListGeneration ?? 0;
 }
 
 function getPathCache(): Map<string, string> {
-  if (!globalThis.__piSessionPathCache) globalThis.__piSessionPathCache = new Map();
-  return globalThis.__piSessionPathCache;
+  if (!globalThis.__jiyunSessionPathCache) globalThis.__jiyunSessionPathCache = new Map();
+  return globalThis.__jiyunSessionPathCache;
 }
 
 function getPathToIdCache(): Map<string, string> {
-  if (!globalThis.__piPathToSessionIdCache) globalThis.__piPathToSessionIdCache = new Map();
-  return globalThis.__piPathToSessionIdCache;
+  if (!globalThis.__jiyunPathToSessionIdCache) globalThis.__jiyunPathToSessionIdCache = new Map();
+  return globalThis.__jiyunPathToSessionIdCache;
 }
 
 export async function resolveSessionPath(sessionId: string): Promise<string | null> {

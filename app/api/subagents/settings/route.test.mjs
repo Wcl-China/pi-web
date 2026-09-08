@@ -5,9 +5,9 @@ import { join } from "node:path";
 import test, { after } from "node:test";
 import { createJiti } from "jiti";
 
-const originalAgentDir = process.env.PI_CODING_AGENT_DIR;
-const testAgentDir = await mkdtemp(join(tmpdir(), "pi-web-subagent-settings-route-"));
-process.env.PI_CODING_AGENT_DIR = testAgentDir;
+const originalAgentDir = process.env.JIYUN_CODING_AGENT_DIR;
+const testAgentDir = await mkdtemp(join(tmpdir(), "jiyun-web-subagent-settings-route-"));
+process.env.JIYUN_CODING_AGENT_DIR = testAgentDir;
 
 const jiti = createJiti(import.meta.url, {
   alias: { "@": process.cwd() },
@@ -17,8 +17,8 @@ const jiti = createJiti(import.meta.url, {
 const { GET, PUT } = await jiti.import("./route.ts");
 
 after(async () => {
-  if (originalAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
-  else process.env.PI_CODING_AGENT_DIR = originalAgentDir;
+  if (originalAgentDir === undefined) delete process.env.JIYUN_CODING_AGENT_DIR;
+  else process.env.JIYUN_CODING_AGENT_DIR = originalAgentDir;
   await rm(testAgentDir, { recursive: true, force: true });
 });
 

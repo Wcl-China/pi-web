@@ -49,7 +49,7 @@ test("push shows a notification when no window is visible", async () => {
       title: "Session complete",
       body: "Task finished.",
       url: "/?session=session-1",
-      tag: "pi-session-complete:session-1",
+      tag: "jiyun-session-complete:session-1",
     },
     [{ url: "https://pi.test/?session=other", visibilityState: "hidden" }],
   );
@@ -60,7 +60,7 @@ test("push shows a notification when no window is visible", async () => {
     options: {
       body: "Task finished.",
       data: { url: "/?session=session-1" },
-      tag: "pi-session-complete:session-1",
+      tag: "jiyun-session-complete:session-1",
       renotify: true,
     },
   }]);

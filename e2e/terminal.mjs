@@ -11,7 +11,7 @@ import { chromium } from "playwright";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 assert.ok(!existsSync(join(root, ".next/dev/lock")), "Run in a checkout without an active dev server");
-const artifacts = mkdtempSync(join(tmpdir(), "pi-web-terminal-e2e-"));
+const artifacts = mkdtempSync(join(tmpdir(), "jiyun-web-terminal-e2e-"));
 console.log(`Artifacts: ${artifacts}`);
 const agentDir = join(artifacts, "agent");
 const workspace = join(artifacts, "workspace-a");
@@ -42,7 +42,7 @@ const base = `http://127.0.0.1:${port}`;
 const log = createWriteStream(join(artifacts, "server.log"));
 const server = spawn(process.execPath, [join(root, "node_modules/next/dist/bin/next"), "dev", "-H", "127.0.0.1", "-p", String(port)], {
   cwd: root,
-  env: { ...process.env, PI_CODING_AGENT_DIR: agentDir, PI_WEB_PASSWORD: "", NEXT_TELEMETRY_DISABLED: "1", HISTFILE: process.platform === "win32" ? "NUL" : "/dev/null", BASH_SILENCE_DEPRECATION_WARNING: "1", SHELL: process.platform === "win32" ? process.env.SHELL : "/bin/bash" },
+  env: { ...process.env, JIYUN_CODING_AGENT_DIR: agentDir, JIYUN_WEB_PASSWORD: "", NEXT_TELEMETRY_DISABLED: "1", HISTFILE: process.platform === "win32" ? "NUL" : "/dev/null", BASH_SILENCE_DEPRECATION_WARNING: "1", SHELL: process.platform === "win32" ? process.env.SHELL : "/bin/bash" },
   stdio: ["ignore", "pipe", "pipe"],
 });
 server.stdout.pipe(log, { end: false });
@@ -139,14 +139,14 @@ try {
 
       await page.getByRole("button", { name: "Restart terminal", exact: true }).click();
       await page.waitForFunction((oldId) => {
-        const saved = JSON.parse(sessionStorage.getItem("pi-web:terminal-tabs"));
+        const saved = JSON.parse(sessionStorage.getItem("jiyun-web:terminal-tabs"));
         return saved.tabs.length === 1 && saved.tabs[0].id !== oldId;
       }, id);
       await ready();
       assert.equal((await fetch(`${base}/api/terminal/${id}`)).status, 404);
       await run("exit 7");
       await page.getByText("Process exited with code 7", { exact: true }).waitFor();
-      const currentId = await page.evaluate(() => JSON.parse(sessionStorage.getItem("pi-web:terminal-tabs")).tabs[0].id);
+      const currentId = await page.evaluate(() => JSON.parse(sessionStorage.getItem("jiyun-web:terminal-tabs")).tabs[0].id);
       await page.getByRole("button", { name: "Terminate terminal workspace-a", exact: true }).click();
       await page.locator(".terminal-panel").waitFor({ state: "detached" });
       assert.equal((await fetch(`${base}/api/terminal/${currentId}`)).status, 404);
@@ -178,7 +178,7 @@ try {
       await page.getByText("Other workspace session", { exact: true }).waitFor();
       await page.getByRole("button", { name: "Open workspace terminal", exact: true }).click();
       await ready();
-      const workspaceTabs = await page.evaluate(() => JSON.parse(sessionStorage.getItem("pi-web:terminal-tabs")).tabs);
+      const workspaceTabs = await page.evaluate(() => JSON.parse(sessionStorage.getItem("jiyun-web:terminal-tabs")).tabs);
       assert.deepEqual(workspaceTabs.map((tab) => tab.cwd).sort(), [workspace, otherWorkspace].sort());
       const otherId = workspaceTabs.find((tab) => tab.cwd === otherWorkspace).id;
       assert.equal((await (await fetch(`${base}/api/terminal/${otherId}`)).json()).cwd, otherWorkspace);

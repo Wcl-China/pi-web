@@ -5,10 +5,10 @@ import {
   type BashOperations,
   type InlineExtension,
   type LoadExtensionsResult,
-} from "@earendil-works/pi-coding-agent";
+} from "@jiyun-ai/jiyun-coding-agent";
 import { join } from "node:path";
 
-const HOST_EXTENSION_NAME = "pi-web-project-command-environment";
+const HOST_EXTENSION_NAME = "jiyun-web-project-command-environment";
 const HOST_EXTENSION_PATH = `<inline:${HOST_EXTENSION_NAME}>`;
 
 type ProjectShellSettings = {

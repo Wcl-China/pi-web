@@ -1,8 +1,8 @@
 # Built-in sub-agent activation and extension precedence
 
-Pi Web's integrated sub-agent implementation is an inline, hidden extension.
+Jiyun Web's integrated sub-agent implementation is an inline, hidden extension.
 It is disabled by default and controlled by the global
-`~/.pi/agent/agents/settings.json` setting `builtInEnabled`.
+`~/.jiyun/agent/agents/settings.json` setting `builtInEnabled`.
 
 The inline extension factory remains installed in every ordinary, non-Chat-only
 resource loader so an AgentSession reload can enable or disable its tools without
@@ -17,7 +17,7 @@ tool names: `Agent`, `get_subagent_result`, or `steer_subagent`. Unrelated exten
 are never removed solely because they use one of those names; the SDK reports those
 collisions normally.
 
-When the integrated extension is disabled, Pi Web does not suppress the legacy
+When the integrated extension is disabled, Jiyun Web does not suppress the legacy
 package, so users can continue to manage and use that implementation through the
 Plugins settings. Existing child sessions remain readable, and already-running
 children are not aborted when the setting changes.

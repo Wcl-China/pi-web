@@ -1,7 +1,7 @@
 /**
  * Tool-name predicates shared by the chat views.
  *
- * Pi's built-in names are plain `write` / `edit`, but MCP servers expose the
+ * Jiyun's built-in names are plain `write` / `edit`, but MCP servers expose the
  * same operations under prefixed or namespaced names, so each predicate also
  * accepts the common decorated forms.
  */

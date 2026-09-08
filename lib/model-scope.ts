@@ -3,7 +3,7 @@ import {
   resolveModelScopeWithDiagnostics,
   type ModelRuntime,
   type ScopedModel,
-} from "@earendil-works/pi-coding-agent";
+} from "@jiyun-ai/jiyun-coding-agent";
 import type { Api, Model } from "@earendil-works/pi-ai";
 
 const THINKING_LEVEL_SUFFIXES = new Set<ThinkingLevel>([

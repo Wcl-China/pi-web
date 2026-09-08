@@ -12,7 +12,7 @@ const execFileAsync = promisify(execFile);
 
 export const runtime = "nodejs";
 
-type PiCodingAgentModule = {
+type JiyunCodingAgentModule = {
   getPackageDir: () => string;
 };
 
@@ -20,9 +20,9 @@ type ExportHtmlModule = {
   exportFromFile: (inputPath: string, outputPath: string) => Promise<string>;
 };
 
-async function getPiPackageDir(): Promise<string | null> {
+async function getJiyunPackageDir(): Promise<string | null> {
   try {
-    const { getPackageDir } = (await import("@earendil-works/pi-coding-agent")) as PiCodingAgentModule;
+    const { getPackageDir } = (await import("@jiyun-ai/jiyun-coding-agent")) as JiyunCodingAgentModule;
     return getPackageDir();
   } catch {
     return null;
@@ -41,9 +41,9 @@ function getContentDisposition(fileName: string, inline: boolean): string {
   return `${disposition}; filename="${fallback}"; filename*=UTF-8''${encodeHeaderValue(fileName)}`;
 }
 
-async function getPiCliPath(): Promise<string | null> {
+async function getJiyunCliPath(): Promise<string | null> {
   const candidates = new Set<string>();
-  const packageDir = await getPiPackageDir();
+  const packageDir = await getJiyunPackageDir();
 
   if (packageDir) {
     candidates.add(join(packageDir, "dist", "cli.js"));
@@ -54,7 +54,7 @@ async function getPiCliPath(): Promise<string | null> {
       resolve?: (specifier: string) => string | Promise<string>;
     }).resolve;
     if (typeof resolver === "function") {
-      const indexUrl = await resolver("@earendil-works/pi-coding-agent");
+      const indexUrl = await resolver("@jiyun-ai/jiyun-coding-agent");
       candidates.add(join(dirname(fileURLToPath(indexUrl)), "cli.js"));
     }
   } catch {
@@ -65,8 +65,8 @@ async function getPiCliPath(): Promise<string | null> {
     join(
       process.cwd(),
       "node_modules",
-      "@earendil-works",
-      "pi-coding-agent",
+      "@jiyun-ai",
+      "jiyun-coding-agent",
       "dist",
       "cli.js"
     )
@@ -83,7 +83,7 @@ async function getPiCliPath(): Promise<string | null> {
  * the call stack on deep linear session trees (e.g., 5000+ entries).
  *
  * ## Root Cause
- * pi-coding-agent's template.js uses recursive helpers to render and
+ * jiyun-coding-agent's template.js uses recursive helpers to render and
  * navigate the session tree in the exported HTML:
  *
  *   1. sortChildren(node) — recursively sorts children of every node.
@@ -98,7 +98,7 @@ async function getPiCliPath(): Promise<string | null> {
  *      Calls itself via markActive(child) for each child.
  *      Same depth → same overflow.
  *
- * Both functions are inlined in the HTML by pi-coding-agent at export
+ * Both functions are inlined in the HTML by jiyun-coding-agent at export
  * time. We cannot modify template.js directly (it's in node_modules
  * and would be overwritten on npm install). Instead, we patch the
  * generated HTML string before returning it to the client.
@@ -215,23 +215,23 @@ function patchExportHtml(html: string): string {
 }
 
 async function exportSession(filePath: string, outputPath: string): Promise<void> {
-  const cliPath = await getPiCliPath();
+  const cliPath = await getJiyunCliPath();
   if (cliPath) {
     await execFileAsync(process.execPath, [cliPath, "--export", filePath, outputPath], {
       cwd: process.cwd(),
       timeout: 30_000,
       env: {
         ...process.env,
-        PI_OFFLINE: "1",
-        PI_SKIP_VERSION_CHECK: "1",
+        JIYUN_OFFLINE: "1",
+        JIYUN_SKIP_VERSION_CHECK: "1",
       },
       maxBuffer: 1024 * 1024,
     });
     return;
   }
 
-  const packageDir = await getPiPackageDir();
-  if (!packageDir) throw new Error("pi CLI not found");
+  const packageDir = await getJiyunPackageDir();
+  if (!packageDir) throw new Error("jiyun CLI not found");
 
   const exporterUrl = pathToFileURL(join(packageDir, "dist", "core", "export-html", "index.js")).href;
   const { exportFromFile } = (await import(exporterUrl)) as ExportHtmlModule;
@@ -251,11 +251,11 @@ export async function GET(
       return NextResponse.json({ error: "Session not found" }, { status: 404 });
     }
 
-    const tempDir = join(tmpdir(), "pi-web-export");
+    const tempDir = join(tmpdir(), "jiyun-web-export");
     mkdirSync(tempDir, { recursive: true });
 
     const sessionBase = basename(filePath, ".jsonl");
-    const fileName = `pi-session-${sessionBase}.html`;
+    const fileName = `jiyun-session-${sessionBase}.html`;
     const outputPath = join(tempDir, `${randomUUID()}.html`);
 
     try {

@@ -2025,7 +2025,7 @@ export function ModelsConfig({ onClose, embedded = false }: { onClose: () => voi
 
   return (
     <>
-    <ConfigPanelShell embedded={embedded} title={t("common.models")} subtitle="~/.pi/agent/models.json" closeLabel={t("i18n.close")} onClose={onClose}>
+    <ConfigPanelShell embedded={embedded} title={t("common.models")} subtitle="~/.jiyun/agent/models.json" closeLabel={t("i18n.close")} onClose={onClose}>
 
         {/* Body */}
         <ConfigSplitView>

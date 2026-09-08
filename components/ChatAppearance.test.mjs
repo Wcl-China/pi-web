@@ -28,7 +28,7 @@ test("General chat settings own the chat width preference", () => {
   assert.match(settingsPanel, /min=\{CHAT_CONTENT_WIDTH_MIN\}/);
   assert.match(settingsPanel, /max=\{CHAT_CONTENT_WIDTH_MAX\}/);
   assert.match(settingsPanel, /step=\{10\}/);
-  assert.match(chatAppearanceHook, /pi-chat-content-width/);
+  assert.match(chatAppearanceHook, /jiyun-chat-content-width/);
   assert.match(chatAppearanceHook, /localStorage\.setItem/);
 });
 

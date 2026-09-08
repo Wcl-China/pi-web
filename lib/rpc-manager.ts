@@ -1,5 +1,5 @@
 import type { ThinkingLevel } from "@earendil-works/pi-agent-core";
-import { createAgentSessionFromServices, createAgentSessionServices, getAgentDir, initTheme, SessionManager, SettingsManager, Theme } from "@earendil-works/pi-coding-agent";
+import { createAgentSessionFromServices, createAgentSessionServices, getAgentDir, initTheme, SessionManager, SettingsManager, Theme } from "@jiyun-ai/jiyun-coding-agent";
 import { KeybindingsManager as TuiKeybindingsManager, TUI_KEYBINDINGS } from "@earendil-works/pi-tui";
 import { randomUUID } from "crypto";
 import { existsSync, realpathSync, writeFileSync } from "fs";
@@ -17,8 +17,8 @@ import { getProjectTrustStatus, projectTrustReloadOptions } from "./project-trus
 import { persistExplicitStartupPreferences } from "./startup-preferences";
 import { notifySessionComplete } from "./web-push";
 import { hasActiveSessionLivenessProvider } from "./session-liveness";
-import type { SlashCommandInfo } from "@earendil-works/pi-coding-agent";
-import type { AgentSessionLike, ExtensionUiContextLike, ToolInfo } from "./pi-types";
+import type { SlashCommandInfo } from "@jiyun-ai/jiyun-coding-agent";
+import type { AgentSessionLike, ExtensionUiContextLike, ToolInfo } from "./jiyun-types";
 import type {
   ExtensionUiRequest,
   ExtensionUiResponse,
@@ -30,7 +30,7 @@ import type {
 import { createHeadlessCustomUiTui, DEFAULT_CUSTOM_UI_COLUMNS, type HeadlessCustomUiTui } from "./custom-ui-terminal";
 import {
   createSubagentExtension,
-  preferPiWebSubagentExtension,
+  preferJiyunWebSubagentExtension,
 } from "./subagent-extension";
 import {
   listSubagentProfiles,
@@ -127,7 +127,7 @@ const IDLE_RESET_EVENT_TYPES = new Set([
 const DEFAULT_SESSION_IDLE_TIMEOUT_MS = 10 * 60 * 1000;
 
 /**
- * Resolves the PI_WEB_IDLE_TIMEOUT_MS environment variable into a session idle
+ * Resolves the JIYUN_WEB_IDLE_TIMEOUT_MS environment variable into a session idle
  * timeout in milliseconds. An unset/blank value returns the 10-minute default,
  * `0` disables idle shutdown, and positive values up to Node's timer limit
  * (2147483647 ms) are used as-is. Invalid or out-of-range values fall back to
@@ -135,12 +135,12 @@ const DEFAULT_SESSION_IDLE_TIMEOUT_MS = 10 * 60 * 1000;
  * @param rawValue Value to parse; defaults to the environment variable.
  */
 export function resolveSessionIdleTimeoutMs(
-  rawValue: string | undefined = process.env.PI_WEB_IDLE_TIMEOUT_MS,
+  rawValue: string | undefined = process.env.JIYUN_WEB_IDLE_TIMEOUT_MS,
 ): number {
   if (rawValue !== undefined && rawValue.trim() !== "") {
     const parsed = Number(rawValue);
     if (Number.isFinite(parsed) && parsed >= 0 && parsed <= 2_147_483_647) return parsed;
-    console.warn(`[pi-web] invalid PI_WEB_IDLE_TIMEOUT_MS "${rawValue}", falling back to 10 minutes`);
+    console.warn(`[jiyun-web] invalid JIYUN_WEB_IDLE_TIMEOUT_MS "${rawValue}", falling back to 10 minutes`);
   }
   return DEFAULT_SESSION_IDLE_TIMEOUT_MS;
 }
@@ -313,13 +313,13 @@ export class AgentSessionWrapper {
     try {
       this.onAgentRunComplete?.(this.sessionId);
     } catch (error) {
-      console.error("[pi-web] completion listener failed:", error instanceof Error ? error.message : error);
+      console.error("[jiyun-web] completion listener failed:", error instanceof Error ? error.message : error);
     }
   }
 
   beginExtensionBinding(): void {
     void this.ensureExtensionsBound().catch((err) => {
-      console.error("[pi-web] failed to dispatch session_start to extensions:", err instanceof Error ? err.message : err);
+      console.error("[jiyun-web] failed to dispatch session_start to extensions:", err instanceof Error ? err.message : err);
     });
   }
 
@@ -355,7 +355,7 @@ export class AgentSessionWrapper {
             id: randomUUID(),
             method: "notify",
             notifyType: "warning",
-            message: "Extension requested shutdown, but shutdown is not supported in Pi Web.",
+            message: "扩展请求关闭会话，但 Jiyun Web 暂不支持该操作。",
           } as ExtensionUiRequest as AgentEvent),
           onError: (error) => this.emit({
             type: "extension_error",
@@ -369,7 +369,7 @@ export class AgentSessionWrapper {
       }
       this.extensionsBound = true;
       this.applyExactSystemPrompt();
-      console.log(`[pi-web] session_start dispatched to extensions for session ${this.inner.sessionId}`);
+      console.log(`[jiyun-web] session_start dispatched to extensions for session ${this.inner.sessionId}`);
     })().catch((err) => {
       this.extensionBindingError = err;
       throw err;
@@ -438,7 +438,7 @@ export class AgentSessionWrapper {
         listener(event);
       } catch (error) {
         console.error(
-          `[pi-web] failed to deliver ${event.type} event:`,
+          `[jiyun-web] failed to deliver ${event.type} event:`,
           error instanceof Error ? error.message : error,
         );
       }
@@ -470,7 +470,7 @@ export class AgentSessionWrapper {
         return;
       }
       void this.shutdown().catch((error) => {
-        console.error("[pi-web] failed to shut down idle session:", error instanceof Error ? error.message : error);
+        console.error("[jiyun-web] failed to shut down idle session:", error instanceof Error ? error.message : error);
       });
     }, SESSION_IDLE_TIMEOUT_MS);
   }
@@ -488,7 +488,7 @@ export class AgentSessionWrapper {
       .join("\n") + "\n";
     writeFileSync(sessionFile, content, { encoding: "utf8", flag: "wx" });
 
-    // Pi normally delays the first flush until an assistant message exists.
+    // Jiyun normally delays the first flush until an assistant message exists.
     // A leading shell command has no assistant message, so mark this SDK
     // manager as flushed after writing its own generated entries.
     (manager as unknown as { flushed: boolean }).flushed = true;
@@ -533,7 +533,7 @@ export class AgentSessionWrapper {
       await this.shutdown();
     } catch (error) {
       console.error(
-        `[pi-web] ${replacement} succeeded, but source session shutdown failed:`,
+        `[jiyun-web] ${replacement} succeeded, but source session shutdown failed:`,
         error instanceof Error ? error.message : error,
       );
     }
@@ -649,7 +649,7 @@ export class AgentSessionWrapper {
             }
           }).catch((error) => {
             console.error(
-              "[pi-web] prompt completion handler failed:",
+              "[jiyun-web] prompt completion handler failed:",
               error instanceof Error ? error.message : error,
             );
           });
@@ -1039,7 +1039,7 @@ export class AgentSessionWrapper {
     ))()
       .catch((error) => {
         console.error(
-          "[pi-web] session_shutdown before dispose failed:",
+          "[jiyun-web] session_shutdown before dispose failed:",
           error instanceof Error ? error.message : error,
         );
       })
@@ -1056,7 +1056,7 @@ export class AgentSessionWrapper {
           await this.waitForExtensionsBound();
         } catch (error) {
           console.error(
-            "[pi-web] extension binding failed before session shutdown:",
+            "[jiyun-web] extension binding failed before session shutdown:",
             error instanceof Error ? error.message : error,
           );
         }
@@ -1594,7 +1594,7 @@ export class AgentSessionWrapper {
       get theme() { return PLAIN_TEXT_THEME; },
       getAllThemes: () => [],
       getTheme: () => undefined,
-      setTheme: () => ({ success: false, error: "Theme switching is not supported in Pi Web extension UI yet" }),
+      setTheme: () => ({ success: false, error: "Theme switching is not supported in Jiyun Web extension UI yet" }),
       getToolsExpanded: () => false,
       setToolsExpanded: () => {},
     };
@@ -1638,17 +1638,17 @@ export class AgentSessionWrapper {
 // ============================================================================
 
 declare global {
-  var __piSessions: Map<string, AgentSessionWrapper> | undefined;
-  var __piStartLocks: Map<string, Promise<{ session: AgentSessionWrapper; realSessionId: string }>> | undefined;
-  var __piStartingSessionCwds: Map<string, number> | undefined;
+  var __jiyunSessions: Map<string, AgentSessionWrapper> | undefined;
+  var __jiyunStartLocks: Map<string, Promise<{ session: AgentSessionWrapper; realSessionId: string }>> | undefined;
+  var __jiyunStartingSessionCwds: Map<string, number> | undefined;
 }
 
 function getRegistry(): Map<string, AgentSessionWrapper> {
-  if (!globalThis.__piSessions) {
-    globalThis.__piSessions = new Map();
-    const destroy = () => globalThis.__piSessions?.forEach((session) => session.destroy());
+  if (!globalThis.__jiyunSessions) {
+    globalThis.__jiyunSessions = new Map();
+    const destroy = () => globalThis.__jiyunSessions?.forEach((session) => session.destroy());
     const shutdown = () => {
-      const sessions = Array.from(globalThis.__piSessions?.values() ?? []);
+      const sessions = Array.from(globalThis.__jiyunSessions?.values() ?? []);
       void Promise.allSettled(sessions.map((session) => session.shutdown()));
     };
     // Node cannot await work from an exit handler; direct destruction starts
@@ -1657,7 +1657,7 @@ function getRegistry(): Map<string, AgentSessionWrapper> {
     process.once("SIGINT", shutdown);
     process.once("SIGTERM", shutdown);
   }
-  return globalThis.__piSessions;
+  return globalThis.__jiyunSessions;
 }
 
 function registerRpcWrapper(wrapper: AgentSessionWrapper): void {
@@ -1702,8 +1702,8 @@ export function abortSubagent(sessionId: string) {
 }
 
 function getLocks(): Map<string, Promise<{ session: AgentSessionWrapper; realSessionId: string }>> {
-  if (!globalThis.__piStartLocks) globalThis.__piStartLocks = new Map();
-  return globalThis.__piStartLocks;
+  if (!globalThis.__jiyunStartLocks) globalThis.__jiyunStartLocks = new Map();
+  return globalThis.__jiyunStartLocks;
 }
 
 function normalizeRpcCwd(cwd: string): string {
@@ -1716,8 +1716,8 @@ function normalizeRpcCwd(cwd: string): string {
 }
 
 function getStartingSessionCwds(): Map<string, number> {
-  if (!globalThis.__piStartingSessionCwds) globalThis.__piStartingSessionCwds = new Map();
-  return globalThis.__piStartingSessionCwds;
+  if (!globalThis.__jiyunStartingSessionCwds) globalThis.__jiyunStartingSessionCwds = new Map();
+  return globalThis.__jiyunStartingSessionCwds;
 }
 
 function trackStartingSession(cwd: string): () => void {
@@ -1821,7 +1821,7 @@ function runtimeMessageActivityMs(entry: SessionMessageEntry): number | undefine
 }
 
 /**
- * Return live sessions that should be visible in the session list. Pi delays
+ * Return live sessions that should be visible in the session list. Jiyun delays
  * the first JSONL flush until an assistant message exists, so an accepted new
  * prompt must temporarily be described from its in-memory SessionManager.
  */
@@ -1979,7 +1979,7 @@ export async function startRpcSession(
       // Otherwise DO NOT pass a builtin-only allow-list: passing CODING_TOOL_NAMES
       // set allowedToolNames to coding builtins only, which filtered every
       // extension/package-provided tool (e.g. subagents, web access) out of the
-      // tool registry — so they were unavailable in Pi Web sessions even though the
+      // tool registry — so they were unavailable in Jiyun Web sessions even though the
       // `pi` CLI keeps them. Leaving the allow-list unset lets the SDK register all
       // tools (and activate extension tools); we narrow the ACTIVE set below.
       toolsOption = selectedToolNames.length === 0 ? [] : undefined;
@@ -1988,7 +1988,7 @@ export async function startRpcSession(
     // Build services first so extension-registered providers are available
     // before the SDK restores the saved model from the session file.
     // Gate untrusted project extensions so opening a repository does not run
-    // its .pi/extensions code automatically (see lib/project-trust.ts, #236).
+    // its .jiyun/extensions code automatically (see lib/project-trust.ts, #236).
     const trustReloadOptions = subagentResources
       ? subagentLoadsResources
         ? projectTrustReloadOptions(sessionCwd, agentDir)
@@ -2030,7 +2030,7 @@ export async function startRpcSession(
                 isBuiltInSubagentsEnabled,
               ),
             ],
-            extensionsOverride: (base) => preferUserBashExtension(preferPiWebSubagentExtension(base)),
+            extensionsOverride: (base) => preferUserBashExtension(preferJiyunWebSubagentExtension(base)),
           },
       ...(trustReloadOptions ? { resourceLoaderReloadOptions: trustReloadOptions } : {}),
     });
@@ -2084,7 +2084,7 @@ export async function startRpcSession(
 
     // If specific tool names were requested (non-empty), set the active tools to the
     // requested builtin coding tools PLUS all extension/package tools, so installed
-    // extensions stay usable in Pi Web just like in the `pi` CLI.
+    // extensions stay usable in Jiyun Web just like in the `jiyun` CLI.
     if (!subagentResources && !chatOnly) {
       inner.setActiveToolsByName(withExtensionTools(inner, selectedToolNames ?? inner.getActiveToolNames()));
     }
@@ -2099,7 +2099,7 @@ export async function startRpcSession(
       chatOnly,
       onAgentRunComplete: (completedSessionId) => {
         void notifySessionComplete(completedSessionId).catch((error) => {
-          console.error("[pi-web] failed to send completion push:", error instanceof Error ? error.message : error);
+          console.error("[jiyun-web] failed to send completion push:", error instanceof Error ? error.message : error);
         });
       },
       suppressCompletionNotifications: Boolean(subagentResources),

@@ -5,9 +5,9 @@ import { join } from "node:path";
 import test, { after } from "node:test";
 import { createJiti } from "jiti";
 
-const originalAgentDir = process.env.PI_CODING_AGENT_DIR;
-const testAgentDir = await mkdtemp(join(tmpdir(), "pi-web-subagent-route-global-"));
-process.env.PI_CODING_AGENT_DIR = testAgentDir;
+const originalAgentDir = process.env.JIYUN_CODING_AGENT_DIR;
+const testAgentDir = await mkdtemp(join(tmpdir(), "jiyun-web-subagent-route-global-"));
+process.env.JIYUN_CODING_AGENT_DIR = testAgentDir;
 
 const jiti = createJiti(import.meta.url, {
   alias: { "@": process.cwd() },
@@ -18,8 +18,8 @@ const { GET, PUT, PATCH, DELETE } = await jiti.import("./route.ts");
 const { allowFileRoot } = await jiti.import("../../../../lib/file-access.ts");
 
 after(async () => {
-  if (originalAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
-  else process.env.PI_CODING_AGENT_DIR = originalAgentDir;
+  if (originalAgentDir === undefined) delete process.env.JIYUN_CODING_AGENT_DIR;
+  else process.env.JIYUN_CODING_AGENT_DIR = originalAgentDir;
   await rm(testAgentDir, { recursive: true, force: true });
 });
 
@@ -48,7 +48,7 @@ function jsonRequest(method, body) {
 }
 
 test("profiles route creates, lists, and deletes a project profile", async (t) => {
-  const cwd = await mkdtemp(join(tmpdir(), "pi-web-subagent-route-"));
+  const cwd = await mkdtemp(join(tmpdir(), "jiyun-web-subagent-route-"));
   allowFileRoot(cwd);
   t.after(() => rm(cwd, { recursive: true, force: true }));
 
@@ -59,7 +59,7 @@ test("profiles route creates, lists, and deletes a project profile", async (t) =
   assert.deepEqual(putBody.profile.tools, []);
   assert.equal(putBody.profile.loadSkills, true);
   assert.equal(putBody.profile.loadExtensions, true);
-  const source = await readFile(join(cwd, ".pi", "agents", "api-test-agent.md"), "utf8");
+  const source = await readFile(join(cwd, ".jiyun", "agents", "api-test-agent.md"), "utf8");
   assert.match(source, /tools: none/);
   assert.match(source, /load_skills: true/);
   assert.match(source, /load_extensions: true/);
@@ -82,7 +82,7 @@ test("profiles route creates, lists, and deletes a project profile", async (t) =
 });
 
 test("profiles route keeps same-name global and project profiles independently editable", async (t) => {
-  const cwd = await mkdtemp(join(tmpdir(), "pi-web-subagent-route-"));
+  const cwd = await mkdtemp(join(tmpdir(), "jiyun-web-subagent-route-"));
   allowFileRoot(cwd);
   t.after(() => rm(cwd, { recursive: true, force: true }));
 
@@ -138,7 +138,7 @@ test("profiles route keeps same-name global and project profiles independently e
 });
 
 test("profiles route rejects missing paths, malformed profiles, and unsafe names", async (t) => {
-  const cwd = await mkdtemp(join(tmpdir(), "pi-web-subagent-route-"));
+  const cwd = await mkdtemp(join(tmpdir(), "jiyun-web-subagent-route-"));
   allowFileRoot(cwd);
   t.after(() => rm(cwd, { recursive: true, force: true }));
 

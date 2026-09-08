@@ -1,184 +1,185 @@
-# Pi Web
+# Jiyun Web
 
-[中文文档](./README.zh-CN.md) | [日本語](./README.ja.md) | [Русский](./README.ru.md)
+Jiyun Web 是 Jiyun coding agent 的本地浏览器界面。它与 Jiyun CLI 共用模型、凭据、插件、技能、项目配置和会话文件，可在浏览器中继续对话、管理会话、运行工具、配置模型并浏览项目文件。
 
-Local browser UI for the [pi coding agent](https://github.com/earendil-works/pi). Pi Web uses the same local configuration and session files as pi, so you can browse and resume conversations, run agent turns, configure models and resources, and inspect project files from a browser.
+## 版本配套
 
-![Pi Web displaying a pi session with structured Markdown, tool calls, and project navigation](https://raw.githubusercontent.com/agegr/pi-web/main/docs/screenshot2.png)
+| 组件 | 版本 |
+| --- | --- |
+| Jiyun Web | `0.9.0` |
+| Jiyun coding agent | `0.85.1` |
+| Node.js | `>= 22.19.0` |
 
-## Features
+本版本基于 Pi Web `v0.9.0` 改造，并使用 Jiyun coding agent `v0.85.1` 作为核心运行时。
 
-- **Session workspace**: browse, resume, rename, export, and delete conversations grouped by project, with running state, context usage, cost, and compaction details.
-- **Two ways to branch**: **New session** creates an independent session file from an earlier message; **Edit from here** creates a branch inside the current session.
-- **Project file tools**: browse and upload files, inspect Git diffs, and preview source, Markdown, images, audio, PDFs, and DOCX files with automatic refresh.
-- **Git worktrees**: switch checkouts from the sidebar while keeping sessions from the same repository grouped together.
-- **Web-based configuration**: manage provider login and API keys, models, model tests, plugin packages, and skills without leaving Pi Web.
-- **English, Simplified Chinese, and Traditional Chinese UI**: Pi Web follows the browser language initially and provides a language switcher in the top bar.
+## 主要功能
 
-## Quick Start
+- 按项目查看、继续、重命名、导出和删除 Jiyun 会话。
+- 在网页中发送消息、运行工具、切换模型和思考等级。
+- 管理 Provider 登录、API Key、模型、插件和技能。
+- 浏览项目文件、查看 Git Diff，并预览 Markdown、图片、音频、PDF 和 DOCX。
+- 管理 Git worktree、内置终端和子代理。
+- 支持桌面与移动端，并可安装为 PWA。
 
-Pi Web requires Node.js 22.19.0 or newer. Check your version with `node --version`, then run:
+## 目录关系
 
-```bash
-npx @agegr/pi-web@latest
+源码开发时，Jiyun Web 默认从相邻的 Jiyun 仓库加载核心包：
+
+```text
+jiyun-agent/
+├── jiyun/                         # Jiyun v0.85.1 monorepo
+│   └── packages/coding-agent/
+└── jiyun-web/                     # Jiyun Web v0.9.0
 ```
 
-The CLI opens a browser after the server is ready. If it does not, open [http://127.0.0.1:30141](http://127.0.0.1:30141). Pi Web listens only on `127.0.0.1` by default.
+`package.json` 中使用以下本地依赖：
 
-If no model provider is configured yet, open the **Models** panel to sign in or add an API key.
-
-To install the `pi-web` command globally:
-
-```bash
-npm install -g @agegr/pi-web@latest
-pi-web
+```json
+"@jiyun-ai/jiyun-coding-agent": "file:../jiyun/packages/coding-agent"
 ```
 
-To update, stop the running process with `Ctrl+C` and run the same install command again. To uninstall, run `npm uninstall -g @agegr/pi-web`.
+因此首次安装 Jiyun Web 之前，应先完成 Jiyun coding-agent 的依赖安装和构建。
 
-## Configuration
+## 从源码运行
 
-For port and hostname, command-line options override the corresponding environment variables. Either `--no-open` or `PI_WEB_NO_OPEN=1` disables automatic browser opening. Run `pi-web --help` (or `-h`) to print startup options and exit without starting the server. Unknown options exit with an error.
-
-| Option or environment variable | Purpose | Default |
-| --- | --- | --- |
-| `--help`, `-h` | Print startup options and exit | — |
-| `--port <port>`, `-p <port>`, or `PORT` | Server port | `30141` |
-| `--hostname <host>`, `-H <host>`, or `PI_WEB_HOSTNAME` | Bind hostname | `127.0.0.1` |
-| `--no-open` or `PI_WEB_NO_OPEN=1` | Do not open a browser automatically | Browser opens |
-| `PI_WEB_SKIP_VERSION_CHECK=1` | Disable Pi Web update checks | Unset |
-| `PI_WEB_ALLOWED_HOSTS` | Additional exact proxy or custom hostnames, comma-separated | Unset |
-| `PI_WEB_PASSWORD` | Enable HTTP Basic Auth; the username is always `pi` | Authentication disabled |
-| `PI_WEB_IDLE_TIMEOUT_MS` | Session idle timeout in milliseconds, up to `2147483647`; `0` disables idle shutdown; invalid or out-of-range values use the default | `600000` (10 min) |
-
-For example:
-
-```bash
-pi-web --help
-pi-web -p 8080 -H 0.0.0.0 --no-open
-```
-
-### Remote Access
-
-Binding to a non-loopback address exposes an agent that can execute high-privilege actions. On a trusted LAN, require a long random password:
-
-```bash
-PI_WEB_PASSWORD='a-long-random-password' pi-web --hostname 0.0.0.0
-```
-
-Basic Auth does not encrypt the password in transit. Do not expose Pi Web over plain HTTP to the internet; use HTTPS through a trusted reverse proxy or a trusted VPN. If a reverse proxy sends an external hostname, add that exact name to `PI_WEB_ALLOWED_HOSTS`. This allow-list does not change the address Pi Web binds to.
-
-### HTTP Proxy
-
-Server-side model and API requests honor the standard `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY` environment variables.
-
-On macOS or Linux:
-
-```bash
-HTTP_PROXY=http://127.0.0.1:7890 \
-HTTPS_PROXY=http://127.0.0.1:7890 \
-NO_PROXY=localhost,127.0.0.1 \
-npx @agegr/pi-web@latest
-```
-
-On Windows PowerShell:
+### 1. 构建 Jiyun coding agent
 
 ```powershell
-$env:HTTP_PROXY = "http://127.0.0.1:7890"
-$env:HTTPS_PROXY = "http://127.0.0.1:7890"
-$env:NO_PROXY = "localhost,127.0.0.1"
-npx @agegr/pi-web@latest
-```
-
-## Notes
-
-- **Agent data**: Pi Web reads pi data from `~/.pi/agent` by default, including session files under `sessions/<encoded-cwd>/<timestamp>_<uuid>.jsonl`. Set `PI_CODING_AGENT_DIR` to use another pi agent directory.
-- **Filesystem access**: Pi Web must be able to read the agent data directory and the working directories recorded by its sessions. Run Pi Web in the same filesystem environment as pi when sharing existing sessions.
-- **Shared configuration**: the Models panel uses pi's model, settings, and credential storage, so changes are visible to both interfaces.
-- **File access boundary**: the file browser is limited to working directories selected in Pi Web and project or session roots it already knows about; it is not a general filesystem browser.
-- **Git worktrees**: see [Worktrees in Pi Web](./docs/worktrees.md) for switcher visibility, worktree creation, and removal behavior.
-
-### Downstream Session Context Menu
-
-Electron wrappers and other downstream integrations can provide a session-row
-context menu without patching `SessionSidebar`. Listen for the cancelable
-`pi-web:session-row-contextmenu` browser event and call `preventDefault()`
-synchronously when the integration will handle it:
-
-```js
-window.addEventListener("pi-web:session-row-contextmenu", (event) => {
-  event.preventDefault();
-  const { id, path, cwd, name, clientX, clientY, refresh } = event.detail;
-
-  void openSessionMenu({ id, path, cwd, name, clientX, clientY }).then((changed) => {
-    if (changed) refresh();
-  });
-});
-```
-
-The detail object contains `id`, `path`, `cwd`, optional `name`, pointer
-coordinates, and a `refresh()` callback for actions that change the session
-list. If no listener cancels the extension event, Pi Web preserves the
-browser's native context menu. This hook is browser-side and independent of
-Pi agent extensions.
-
-### Extension Session Liveness
-
-Server-side Pi extensions with detached work can prevent automatic idle
-session eviction through the versioned global registry:
-
-```js
-const liveness = globalThis[Symbol.for("@agegr/pi-web/session-liveness/v1")];
-const release = liveness?.version === 1
-  ? liveness.register({
-      name: "my-extension",
-      sessionId,
-      sessionFile: sessionFile || undefined,
-      isActive: () => detachedJobs.size > 0,
-    })
-  : () => {};
-```
-
-Register once per active extension session and call the returned idempotent
-`release` function on session shutdown, replacement, or reload. `isActive`
-must be synchronous, cheap, and scoped to the supplied exact session id or
-file. Provider errors fail safe by preserving that session. This lease only
-affects automatic idle eviction; explicit shutdown and Stop fallback cleanup
-still take precedence.
-
-## Development
-
-```bash
+cd C:\Users\37886\Project\21_软件智能体\jiyun-agent\jiyun
 npm install
+npm run build --workspace=@jiyun-ai/jiyun-coding-agent
+```
+
+如果底层 workspace 包尚未构建，首次应执行完整构建：
+
+```powershell
+npm run build
+```
+
+### 2. 安装 Jiyun Web 依赖
+
+```powershell
+cd C:\Users\37886\Project\21_软件智能体\jiyun-agent\jiyun-web
+npm install
+```
+
+npm 会从相邻源码打包并安装 `@jiyun-ai/jiyun-coding-agent`。项目通过 `.npmrc` 启用 `install-links=true`，因此该依赖会按真实 npm 包的方式复制安装，而不是建立会被 Webpack 追踪进 Jiyun monorepo 的目录 Junction；其余第三方依赖安装到本项目的 `node_modules`。
+
+如果之后修改并重新构建了相邻的 Jiyun coding-agent，需要刷新 Web 项目里的复制包：
+
+```powershell
+npm install --force
+```
+
+### 3. 启动开发服务器
+
+```powershell
 npm run dev
 ```
 
-The development server runs at [http://127.0.0.1:30141](http://127.0.0.1:30141). Run the common checks with:
+浏览器访问 <http://127.0.0.1:30142>。开发模式使用 Turbopack；开发服务器运行期间不要同时执行生产构建。Jiyun Web 使用 `30142`，可与默认使用 `30141` 的 Pi Web 同时运行。
 
-```bash
+局域网监听：
+
+```powershell
+npm run dev:lan
+```
+
+### 4. 质量检查
+
+```powershell
+npm run typecheck
 npm test
-node_modules/.bin/tsc --noEmit
 npm run lint
 ```
 
-Do not run `next build` or `npm run build` during normal development. It writes to `.next/` and can interfere with the development server; leave builds for release work.
+### 5. 生产构建与启动
 
-Contributor guides: [Internationalization](./docs/i18n.md) and [Release process](./docs/release.md).
-
-## Repository Layout
-
-```text
-app/             Next.js UI and API routes
-components/      React UI components
-hooks/           Client state and interaction hooks
-lib/             Session, agent, model, file, Git, and security logic
-public/          Static assets and PWA files
-bin/             npm CLI entrypoint and launch option parsing
-docs/            Focused user and contributor guides
+```powershell
+npm run build
+npm run start
 ```
 
-See [AGENTS.md](./AGENTS.md) for the architecture notes and detailed file map.
+## 全局安装 `jiyun-web` 命令
 
-## License
+生产构建完成后，可打包并复制安装到 npm 全局目录：
 
-[MIT](./LICENSE)
+```powershell
+npm list -g 2>$null | Select-String "jiyun-web"
+npm uninstall -g @jiyun-ai/jiyun-web
+npm pack
+npm install -g .\jiyun-ai-jiyun-web-0.9.0.tgz
+Remove-Item .\jiyun-ai-jiyun-web-0.9.0.tgz
+```
+
+安装后可在任意目录启动：
+
+```powershell
+jiyun-web
+jiyun-web --help
+jiyun-web -p 8080 -H 127.0.0.1 --no-open
+```
+
+## 配置
+
+| 参数或环境变量 | 用途 | 默认值 |
+| --- | --- | --- |
+| `--help`、`-h` | 打印帮助并退出 | — |
+| `--port <端口>`、`-p <端口>` 或 `PORT` | 服务端口 | `30142` |
+| `--hostname <主机>`、`-H <主机>` 或 `JIYUN_WEB_HOSTNAME` | 监听主机名 | `127.0.0.1` |
+| `--no-open` 或 `JIYUN_WEB_NO_OPEN=1` | 禁止自动打开浏览器 | 自动打开 |
+| `JIYUN_WEB_ALLOWED_HOSTS` | 额外允许的代理或自定义主机名 | 未设置 |
+| `JIYUN_WEB_PASSWORD` | 启用 HTTP Basic Auth，用户名固定为 `jiyun` | 不启用 |
+| `JIYUN_WEB_IDLE_TIMEOUT_MS` | 空闲会话运行时回收时间 | 10 分钟 |
+
+监听非回环地址会暴露可执行高权限操作的智能体。仅应在可信局域网使用，并建议设置足够长的随机密码：
+
+```powershell
+$env:JIYUN_WEB_PASSWORD = "足够长的随机密码"
+jiyun-web --hostname 0.0.0.0
+```
+
+Basic Auth 不加密 HTTP 流量；不要将服务直接暴露到互联网。
+
+## 与 Jiyun CLI 共享的数据
+
+Jiyun Web 通过 `@jiyun-ai/jiyun-coding-agent` 的 `getAgentDir()` 获取数据目录，默认与 Jiyun CLI 共用：
+
+```text
+~/.jiyun/agent/
+├── auth.json
+├── models.json
+├── settings.json
+├── npm/
+├── git/
+├── skills/
+└── sessions/
+```
+
+可用 `JIYUN_CODING_AGENT_DIR` 覆盖该目录。项目级资源使用 `<工作目录>/.jiyun/`。
+
+插件安装范围与 CLI 一致：
+
+- 全局：`~/.jiyun/agent/{npm,git}`，对所有项目生效。
+- 项目：`<工作目录>/.jiyun/{npm,git}`，仅对当前项目生效。
+
+Jiyun 继续兼容 Pi 插件清单和 skills CLI 生态，因此源码中有少量 `pi` 协议标识会被有意保留，例如 `pi-bash-*` 临时文件前缀、`pi-subagents` 兼容检测，以及 skills CLI 的 `--agent pi` 参数。它们不是产品品牌残留。
+
+## 仓库结构
+
+```text
+app/          Next.js 页面与 API 路由
+components/   React 界面组件
+hooks/        客户端状态和交互 hooks
+lib/          会话、模型、插件、文件、Git 与安全逻辑
+public/       PWA 与静态资源
+bin/          `jiyun-web` 命令入口
+docs/         架构决策和专题说明
+e2e/          端到端测试
+```
+
+详细架构和开发注意事项见 [AGENTS.md](./AGENTS.md)，本次迁移过程见 [JIYUN_WEB_MIGRATION_LEDGER.md](./JIYUN_WEB_MIGRATION_LEDGER.md)。
+
+## 许可证
+
+本项目基于 MIT 许可的上游项目改造，原版权与许可证声明见 [LICENSE](./LICENSE)。

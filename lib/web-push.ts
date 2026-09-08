@@ -1,4 +1,4 @@
-import { SessionManager } from "@earendil-works/pi-coding-agent";
+import { SessionManager } from "@jiyun-ai/jiyun-coding-agent";
 import { existsSync, mkdirSync, readFileSync } from "fs";
 import { dirname, join } from "path";
 import webpush from "web-push";
@@ -48,7 +48,7 @@ function getDefaultEnvironment(): WebPushEnvironment {
         payload,
         {
           vapidDetails: {
-            subject: "mailto:pi-web@localhost",
+            subject: "mailto:jiyun-web@localhost",
             publicKey: vapidKeys.publicKey,
             privateKey: vapidKeys.privateKey,
           },
@@ -132,7 +132,7 @@ export function createWebPushNotifier(environment: WebPushEnvironment): WebPushN
         title: sessionName ?? localeText(locale, "sessionComplete"),
         body: localeText(locale, "taskFinished"),
         url: `/?session=${encodeURIComponent(sessionId)}`,
-        tag: `pi-session-complete:${sessionId}`,
+        tag: `jiyun-session-complete:${sessionId}`,
       });
 
       let pruned = false;
@@ -157,14 +157,14 @@ export function createWebPushNotifier(environment: WebPushEnvironment): WebPushN
 }
 
 declare global {
-  var __piWebPushNotifier: Promise<WebPushNotifier> | undefined;
+  var __jiyunWebPushNotifier: Promise<WebPushNotifier> | undefined;
 }
 
 function getNotifier(): Promise<WebPushNotifier> {
-  if (!globalThis.__piWebPushNotifier) {
-    globalThis.__piWebPushNotifier = Promise.resolve().then(() => createWebPushNotifier(getDefaultEnvironment()));
+  if (!globalThis.__jiyunWebPushNotifier) {
+    globalThis.__jiyunWebPushNotifier = Promise.resolve().then(() => createWebPushNotifier(getDefaultEnvironment()));
   }
-  return globalThis.__piWebPushNotifier;
+  return globalThis.__jiyunWebPushNotifier;
 }
 
 export function getVapidPublicKey(): Promise<string> {

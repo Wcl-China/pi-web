@@ -40,7 +40,7 @@ function shortenPath(path: string): string {
 }
 
 function normalizePluginSourceInput(value: string): string {
-  const match = value.trim().match(/^\$?\s*pi\s+install\s+(\S+)\s*$/);
+  const match = value.trim().match(/^\$?\s*(?:jiyun|pi)\s+install\s+(\S+)\s*$/);
   return match?.[1] ?? value;
 }
 
@@ -68,8 +68,8 @@ function versionSummary(pkg: PluginPackageInfo, t: ReturnType<typeof useI18n>["t
 
 function installLocation(scope: PluginScope, cwd: string): string {
   return scope === "project"
-    ? `${shortenPath(cwd)}/.pi/agent/{npm,git}`
-    : "~/.pi/agent/{npm,git}";
+    ? `${shortenPath(cwd)}/.jiyun/{npm,git}`
+    : "~/.jiyun/agent/{npm,git}";
 }
 
 function findInstalledPackage(
@@ -270,7 +270,7 @@ function AddPluginPanel({
 }) {
   const { t } = useI18n();
   const inputRef = useRef<HTMLInputElement>(null);
-  const examples = ["npm:@scope/pi-plugin", "git:https://github.com/user/repo", "/absolute/path/to/plugin"];
+  const examples = ["npm:@scope/jiyun-plugin", "git:https://github.com/user/repo", "/absolute/path/to/plugin"];
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -303,7 +303,7 @@ function AddPluginPanel({
               />
               <path fill="#000" d="M517.36 400H634.72V634.72H517.36Z" />
             </svg>
-            pi.dev/packages
+            Pi 兼容插件目录
           </a>
         </div>
         <div style={{ fontSize: 12, color: "var(--text-dim)", fontFamily: "var(--font-mono)" }}>

@@ -2,10 +2,11 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-const source = await readFile(new URL("./useAgentSession.ts", import.meta.url), "utf8");
-const chatWindowSource = await readFile(new URL("../components/ChatWindow.tsx", import.meta.url), "utf8");
-const chatInputSource = await readFile(new URL("../components/ChatInput.tsx", import.meta.url), "utf8");
-const appShellSource = await readFile(new URL("../components/AppShell.tsx", import.meta.url), "utf8");
+const normalizeSource = (value) => value.replace(/\r\n/g, "\n");
+const source = normalizeSource(await readFile(new URL("./useAgentSession.ts", import.meta.url), "utf8"));
+const chatWindowSource = normalizeSource(await readFile(new URL("../components/ChatWindow.tsx", import.meta.url), "utf8"));
+const chatInputSource = normalizeSource(await readFile(new URL("../components/ChatInput.tsx", import.meta.url), "utf8"));
+const appShellSource = normalizeSource(await readFile(new URL("../components/AppShell.tsx", import.meta.url), "utf8"));
 
 test("keeps the session event stream open through the idle grace window", () => {
   const finishSource = source.slice(
@@ -394,11 +395,11 @@ test("routes blocking extension requests through deduplicated browser attention 
   assert.match(chatWindowSource, /onAttentionNeeded, onSessionCreated/);
   assert.match(completionSource, /if \(!shouldShowBrowserNotification\(\)\) return/);
   assert.doesNotMatch(completionSource, /pushActive/);
-  assert.match(completionSource, /tag: targetSession \? `pi-session-complete:\$\{targetSession\.id\}`/);
+  assert.match(completionSource, /tag: targetSession \? `jiyun-session-complete:\$\{targetSession\.id\}`/);
   assert.doesNotMatch(completionSource, /document\.visibilityState === "visible"/);
   assert.match(attentionSource, /shouldShowBrowserNotification\(\)/);
   assert.match(attentionSource, /claimExtensionAttentionNotification\(request, notifiedAttentionRequestIdsRef\.current\)/);
-  assert.match(attentionSource, /tag: `pi-extension-ui:\$\{request\.id\}`/);
+  assert.match(attentionSource, /tag: `jiyun-extension-ui:\$\{request\.id\}`/);
   assert.match(appShellSource, /onAttentionNeeded=\{handleAttentionNeeded\}/);
 });
 

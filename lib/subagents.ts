@@ -1,5 +1,5 @@
 import type { ThinkingLevel } from "@earendil-works/pi-agent-core";
-import { getAgentDir } from "@earendil-works/pi-coding-agent";
+import { getAgentDir } from "@jiyun-ai/jiyun-coding-agent";
 import { dump as stringifyYaml } from "js-yaml";
 import { existsSync, mkdirSync, readdirSync, readFileSync, unlinkSync } from "fs";
 import { basename, dirname, join, resolve } from "path";
@@ -9,8 +9,8 @@ import { isExistingPathWithinRoots } from "./path-security";
 import { PRESET_READ_ONLY } from "./tool-presets";
 import type { SessionEntry, SubagentSessionStatus } from "./types";
 
-export const SUBAGENT_META_TYPE = "pi-web:subagent";
-export const SUBAGENT_RESULT_TYPE = "pi-web:subagent-result";
+export const SUBAGENT_META_TYPE = "jiyun-web:subagent";
+export const SUBAGENT_RESULT_TYPE = "jiyun-web:subagent-result";
 export const SUBAGENT_CONTROL_TOOL_NAMES = ["Agent", "get_subagent_result", "steer_subagent"] as const;
 
 export type SubagentStatus = SubagentSessionStatus;
@@ -203,7 +203,7 @@ function profileDirectories(cwd: string): Array<[string, Exclude<SubagentScope, 
   return [
     [join(getAgentDir(), "agents"), "global"],
     [join(resolve(cwd), ".agents", "agents"), "workspace"],
-    [join(resolve(cwd), ".pi", "agents"), "project"],
+    [join(resolve(cwd), ".jiyun", "agents"), "project"],
   ];
 }
 
@@ -238,7 +238,7 @@ function assertProfileName(name: string): string {
 
 function writableProfileDirectory(cwd: string, scope: SubagentWritableScope): string {
   if (scope === "global") return join(getAgentDir(), "agents");
-  if (scope === "project") return join(resolve(cwd), ".pi", "agents");
+  if (scope === "project") return join(resolve(cwd), ".jiyun", "agents");
   throw new Error("Agent scope must be global or project");
 }
 

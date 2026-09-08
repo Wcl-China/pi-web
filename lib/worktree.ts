@@ -35,18 +35,18 @@ export interface WorktreeInfo {
 }
 
 declare global {
-  var __piProjectCache: Map<string, { info: ProjectInfo; expiresAt: number }> | undefined;
+  var __jiyunProjectCache: Map<string, { info: ProjectInfo; expiresAt: number }> | undefined;
 }
 
 const PROJECT_CACHE_TTL_MS = 60_000;
 
 function getProjectCache(): Map<string, { info: ProjectInfo; expiresAt: number }> {
-  if (!globalThis.__piProjectCache) globalThis.__piProjectCache = new Map();
-  return globalThis.__piProjectCache;
+  if (!globalThis.__jiyunProjectCache) globalThis.__jiyunProjectCache = new Map();
+  return globalThis.__jiyunProjectCache;
 }
 
 export function invalidateProjectCache(): void {
-  globalThis.__piProjectCache?.clear();
+  globalThis.__jiyunProjectCache?.clear();
 }
 
 async function git(cwd: string, args: string[]): Promise<string> {

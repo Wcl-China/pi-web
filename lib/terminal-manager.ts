@@ -22,7 +22,7 @@ interface TerminalRecord {
 }
 
 declare global {
-  var __piWebTerminals: Map<string, TerminalRecord> | undefined;
+  var __jiyunWebTerminals: Map<string, TerminalRecord> | undefined;
 }
 
 // ponytail: bounded replay; use terminal serialization if full-screen snapshots become necessary.
@@ -30,16 +30,16 @@ const MAX_BACKLOG = 128 * 1024;
 export const TERMINAL_RECONNECT_MS = 120_000;
 
 function registry(): Map<string, TerminalRecord> {
-  if (!globalThis.__piWebTerminals) {
-    globalThis.__piWebTerminals = new Map();
+  if (!globalThis.__jiyunWebTerminals) {
+    globalThis.__jiyunWebTerminals = new Map();
     const shutdown = () => {
-      for (const id of globalThis.__piWebTerminals!.keys()) killTerminal(id, true);
+      for (const id of globalThis.__jiyunWebTerminals!.keys()) killTerminal(id, true);
     };
     process.once("exit", shutdown);
     process.once("SIGINT", shutdown);
     process.once("SIGTERM", shutdown);
   }
-  return globalThis.__piWebTerminals;
+  return globalThis.__jiyunWebTerminals;
 }
 
 function shellEnvironment(): Record<string, string> {

@@ -5,10 +5,10 @@ import type {
   SettingsManager,
   SlashCommandInfo,
   Theme,
-} from "@earendil-works/pi-coding-agent";
+} from "@jiyun-ai/jiyun-coding-agent";
 import type {
   AgentLoopTurnUpdate,
-  AgentMessage as PiAgentMessage,
+  AgentMessage as JiyunAgentMessage,
   PrepareNextTurnContext,
 } from "@earendil-works/pi-agent-core";
 import type { ImageContent, TextContent } from "@earendil-works/pi-ai";
@@ -145,7 +145,7 @@ export interface AgentSessionLike {
     state?: {
       systemPrompt?: string;
       thinkingLevel?: string;
-      streamingMessage?: PiAgentMessage;
+      streamingMessage?: JiyunAgentMessage;
     };
     prepareNextTurnWithContext?: (
       context: PrepareNextTurnContext,

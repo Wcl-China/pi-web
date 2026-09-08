@@ -1,5 +1,5 @@
 const SESSION_LIVENESS_PROTOCOL_VERSION = 1;
-export const SESSION_LIVENESS_REGISTRY_KEY = "@agegr/pi-web/session-liveness/v1";
+export const SESSION_LIVENESS_REGISTRY_KEY = "@jiyun-ai/jiyun-web/session-liveness/v1";
 
 export interface SessionLivenessProvider {
   name: string;
@@ -68,7 +68,7 @@ function createRegistry(): SessionLivenessRegistry {
           }
           if (active) return true;
         } catch (error) {
-          console.error(`[pi-web] Session liveness provider '${provider.name}' failed; preserving the session:`, error);
+          console.error(`[jiyun-web] Session liveness provider '${provider.name}' failed; preserving the session:`, error);
           return true;
         }
       }
@@ -98,7 +98,7 @@ function getRegistry(): SessionLivenessRegistry {
 const registry = getRegistry();
 
 /**
- * Register session-scoped work that must survive pi-web's automatic idle eviction.
+ * Register session-scoped work that must survive jiyun-web's automatic idle eviction.
  * Explicit shutdown and runtime replacement still take precedence.
  */
 export function registerSessionLivenessProvider(provider: SessionLivenessProvider): () => void {

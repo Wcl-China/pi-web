@@ -1,5 +1,5 @@
 import type { ThinkingLevel } from "@earendil-works/pi-agent-core";
-import type { SettingsManager } from "@earendil-works/pi-coding-agent";
+import type { SettingsManager } from "@jiyun-ai/jiyun-coding-agent";
 
 export interface ExplicitStartupPreferences {
   model?: { provider: string; modelId: string };

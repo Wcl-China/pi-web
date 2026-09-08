@@ -1,4 +1,4 @@
-import { parseFrontmatter } from "@earendil-works/pi-coding-agent";
+import { parseFrontmatter } from "@jiyun-ai/jiyun-coding-agent";
 
 const KEY = "disable-model-invocation";
 const KEY_LINE = `[ \\t]*(?:${KEY}|"${KEY}"|'${KEY}')[ \\t]*:`;
@@ -15,7 +15,7 @@ function findFrontmatterBlock(content: string): FrontmatterBlock | undefined {
   if (!opening) return undefined;
 
   const rest = content.slice(opening[0].length);
-  // Pi SDK closes frontmatter at the first line starting with ---.
+  // Jiyun SDK closes frontmatter at the first line starting with ---.
   const closing = new RegExp(`(^|${NEWLINE})---`).exec(rest);
   if (!closing) return undefined;
 

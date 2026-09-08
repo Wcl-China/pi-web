@@ -23,17 +23,17 @@ const {
   invalidateSessionPathCache,
   invalidateSessionListCache,
 } = await jiti.import("../../../lib/session-reader.ts");
-const { SessionManager } = await jiti.import("@earendil-works/pi-coding-agent");
+const { SessionManager } = await jiti.import("@jiyun-ai/jiyun-coding-agent");
 
 test("list versions expose idle session creation, rename and deletion to other windows", async (t) => {
-  const dir = await mkdtemp(join(tmpdir(), "pi-web-list-sync-"));
-  const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
-  process.env.PI_CODING_AGENT_DIR = dir;
+  const dir = await mkdtemp(join(tmpdir(), "jiyun-web-list-sync-"));
+  const previousAgentDir = process.env.JIYUN_CODING_AGENT_DIR;
+  process.env.JIYUN_CODING_AGENT_DIR = dir;
   invalidateSessionListCache();
   let sessionId;
   t.after(async () => {
-    if (previousAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
-    else process.env.PI_CODING_AGENT_DIR = previousAgentDir;
+    if (previousAgentDir === undefined) delete process.env.JIYUN_CODING_AGENT_DIR;
+    else process.env.JIYUN_CODING_AGENT_DIR = previousAgentDir;
     if (sessionId) invalidateSessionPathCache(sessionId);
     invalidateSessionListCache();
     await rm(dir, { recursive: true, force: true });
@@ -102,7 +102,7 @@ test("live agent state is available before the session file is persisted", () =>
 });
 
 test("deleting an intermediate subagent reparents both relation representations", async (t) => {
-  const dir = await mkdtemp(join(tmpdir(), "pi-web-delete-reparent-"));
+  const dir = await mkdtemp(join(tmpdir(), "jiyun-web-delete-reparent-"));
   const grandparentPath = join(dir, "grandparent.jsonl");
   const parentPath = join(dir, "parent.jsonl");
   const childPath = join(dir, "child.jsonl");
@@ -121,7 +121,7 @@ test("deleting an intermediate subagent reparents both relation representations"
     header("delete-reparent-child", parentPath),
     JSON.stringify({
       type: "custom",
-      customType: "pi-web:subagent",
+      customType: "jiyun-web:subagent",
       id: "meta",
       parentId: null,
       timestamp: "2026-01-01T00:00:00.000Z",
@@ -160,7 +160,7 @@ test("deleting an intermediate subagent reparents both relation representations"
 });
 
 test("live detail and state routes work without a persisted JSONL file", async (t) => {
-  const previousRegistry = globalThis.__piSessions;
+  const previousRegistry = globalThis.__jiyunSessions;
   const id = "live-route-test";
   const timestamp = "2026-08-12T01:02:03.000Z";
   const entry = {
@@ -176,9 +176,9 @@ test("live detail and state routes work without a persisted JSONL file", async (
     getLeafId: () => entry.id,
     getTree: () => [],
     getSessionName: () => undefined,
-    getSessionFile: () => `/tmp/pi-web-live-route-not-persisted-${process.pid}.jsonl`,
+    getSessionFile: () => `/tmp/jiyun-web-live-route-not-persisted-${process.pid}.jsonl`,
   };
-  globalThis.__piSessions = new Map([[id, {
+  globalThis.__jiyunSessions = new Map([[id, {
     isAlive: () => true,
     isRunning: () => true,
     inner: { sessionManager },
@@ -188,7 +188,7 @@ test("live detail and state routes work without a persisted JSONL file", async (
     send: async () => ({ isStreaming: true }),
   }]]);
   t.after(() => {
-    globalThis.__piSessions = previousRegistry;
+    globalThis.__jiyunSessions = previousRegistry;
   });
 
   const routeContext = { params: Promise.resolve({ id }) };

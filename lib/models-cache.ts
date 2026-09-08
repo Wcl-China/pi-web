@@ -18,7 +18,7 @@ interface ModelsCacheState {
 }
 
 declare global {
-  var __piModelsCacheState: ModelsCacheState | undefined;
+  var __jiyunModelsCacheState: ModelsCacheState | undefined;
 }
 
 const MODELS_CACHE_TTL_MS = 60_000;
@@ -27,14 +27,14 @@ const MAX_MODELS_CACHE_ENTRIES = 32;
 const SAFE_MODEL_LOAD_FAILURE_MESSAGE = "Model list is temporarily unavailable. Check your configuration and try again.";
 
 function getModelsCacheState(): ModelsCacheState {
-  if (!globalThis.__piModelsCacheState) {
-    globalThis.__piModelsCacheState = {
+  if (!globalThis.__jiyunModelsCacheState) {
+    globalThis.__jiyunModelsCacheState = {
       entries: new Map(),
       inFlight: new Map(),
       generation: 0,
     };
   }
-  return globalThis.__piModelsCacheState;
+  return globalThis.__jiyunModelsCacheState;
 }
 
 export function invalidateModelsCache(): void {

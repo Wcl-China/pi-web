@@ -1,8 +1,8 @@
-import type { SessionManager } from "@earendil-works/pi-coding-agent";
+import type { SessionManager } from "@jiyun-ai/jiyun-coding-agent";
 import { PRESET_FULL } from "./tool-presets";
 import type { SessionEntry } from "./types";
 
-export const TOOL_SELECTION_TYPE = "pi-web:tool-selection";
+export const TOOL_SELECTION_TYPE = "jiyun-web:tool-selection";
 
 export interface SessionToolSelectionData {
   version: 1;

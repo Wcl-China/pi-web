@@ -4,7 +4,7 @@ import {
   type ExtensionContext,
   type InlineExtension,
   type LoadExtensionsResult,
-} from "@earendil-works/pi-coding-agent";
+} from "@jiyun-ai/jiyun-coding-agent";
 import {
   SUBAGENT_CONTROL_TOOL_NAMES,
   type SubagentProfile,
@@ -12,13 +12,13 @@ import {
 } from "./subagents";
 import { MAX_SUBAGENT_INPUT_FILES } from "./subagent-input";
 
-export const HOST_SUBAGENT_EXTENSION_NAME = "pi-web-subagents";
+export const HOST_SUBAGENT_EXTENSION_NAME = "jiyun-web-subagents";
 const HOST_SUBAGENT_EXTENSION_PATH = `<inline:${HOST_SUBAGENT_EXTENSION_NAME}>`;
 const SUBAGENT_TOOL_NAMES = new Set<string>(SUBAGENT_CONTROL_TOOL_NAMES);
 const LEGACY_SUBAGENT_PACKAGE_NAME = "pi-subagents";
 
 export interface SubagentToolDetails {
-  kind: "pi-web-subagent";
+  kind: "jiyun-web-subagent";
   sessionId: string;
   profile: string;
   description: string;
@@ -72,7 +72,7 @@ function agentTypeDescription(profiles: readonly SubagentProfile[]): string {
 
 export function subagentToolDetails(run: SubagentRunInfo): SubagentToolDetails {
   return {
-    kind: "pi-web-subagent",
+    kind: "jiyun-web-subagent",
     sessionId: run.sessionId,
     profile: run.profile,
     description: run.description,
@@ -110,7 +110,7 @@ export function createSubagentExtension(
       pi.registerTool(defineTool({
         name: "Agent",
         label: "Agent",
-        description: `Delegate a focused task to a configured subagent. Each subagent runs as a full, inspectable Pi session. Use background mode for independent work and foreground mode when the result is needed immediately.\n\nAvailable agent types:\n${agentTypeDescription(profiles)}`,
+        description: `Delegate a focused task to a configured subagent. Each subagent runs as a full, inspectable Jiyun session. Use background mode for independent work and foreground mode when the result is needed immediately.\n\nAvailable agent types:\n${agentTypeDescription(profiles)}`,
         promptSnippet: "Delegate a focused task to an inspectable subagent session",
         promptGuidelines: [
           "Use Agent for a focused task that benefits from an isolated context.",
@@ -158,7 +158,7 @@ export function createSubagentExtension(
                 .then((run) => runtime.notifyParent(run))
                 .catch((error) => {
                   console.error(
-                    "[pi-web] failed to deliver subagent completion:",
+                    "[jiyun-web] failed to deliver subagent completion:",
                     error instanceof Error ? error.message : error,
                   );
                 });
@@ -240,8 +240,8 @@ export function createSubagentExtension(
   };
 }
 
-/** Keep Pi Web's integrated implementation when the legacy package is loaded. */
-export function preferPiWebSubagentExtension(base: LoadExtensionsResult): LoadExtensionsResult {
+/** Keep Jiyun Web's integrated implementation when the legacy package is loaded. */
+export function preferJiyunWebSubagentExtension(base: LoadExtensionsResult): LoadExtensionsResult {
   const host = base.extensions.find((extension) => extension.path === HOST_SUBAGENT_EXTENSION_PATH);
   if (!host?.tools.has("Agent")) return base;
   const legacyPaths = new Set(base.extensions

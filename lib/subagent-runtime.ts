@@ -7,8 +7,8 @@ import {
   SessionManager,
   SettingsManager,
   type ModelRuntime,
-} from "@earendil-works/pi-coding-agent";
-import type { AgentSessionLike } from "./pi-types";
+} from "@jiyun-ai/jiyun-coding-agent";
+import type { AgentSessionLike } from "./jiyun-types";
 import {
   subagentFinalText,
   subagentToolDetails,
@@ -69,8 +69,8 @@ type StoredSubagentExecution = {
 };
 
 declare global {
-  var __piSubagentRuns: Map<string, StoredSubagentExecution> | undefined;
-  var __piSubagentStartingCounts: Map<string, number> | undefined;
+  var __jiyunSubagentRuns: Map<string, StoredSubagentExecution> | undefined;
+  var __jiyunSubagentStartingCounts: Map<string, number> | undefined;
 }
 
 const MAX_CONCURRENT_SUBAGENTS = 4;
@@ -78,13 +78,13 @@ const SUBAGENT_CONTEXT_LIMIT = 50_000;
 const THINKING_LEVELS = new Set<ThinkingLevel>(["off", "minimal", "low", "medium", "high", "xhigh", "max"]);
 
 function getSubagentRuns(): Map<string, StoredSubagentExecution> {
-  if (!globalThis.__piSubagentRuns) globalThis.__piSubagentRuns = new Map();
-  return globalThis.__piSubagentRuns;
+  if (!globalThis.__jiyunSubagentRuns) globalThis.__jiyunSubagentRuns = new Map();
+  return globalThis.__jiyunSubagentRuns;
 }
 
 function getSubagentStartingCounts(): Map<string, number> {
-  if (!globalThis.__piSubagentStartingCounts) globalThis.__piSubagentStartingCounts = new Map();
-  return globalThis.__piSubagentStartingCounts;
+  if (!globalThis.__jiyunSubagentStartingCounts) globalThis.__jiyunSubagentStartingCounts = new Map();
+  return globalThis.__jiyunSubagentStartingCounts;
 }
 
 function parseSubagentModel(runtime: ModelRuntime, value: string | undefined) {
@@ -134,7 +134,7 @@ export function createSubagentController(
 ): SubagentController {
   async function start(request: StartSubagentRequest): Promise<SubagentExecution> {
     const enabled = dependencies.isBuiltInSubagentsEnabled ?? isBuiltInSubagentsEnabled;
-    if (!enabled()) throw new Error("Pi Web built-in sub-agents are disabled");
+    if (!enabled()) throw new Error("Jiyun Web built-in sub-agents are disabled");
     const parentSessionId = request.parentContext.sessionManager.getSessionId();
     const parent = dependencies.getSession(parentSessionId);
     if (!parent?.isAlive()) throw new Error("Parent session is no longer available");
@@ -387,7 +387,7 @@ export function createSubagentController(
     await parent.waitUntilReady();
     if (!parent.isAlive()) throw new Error(`Parent session is no longer available: ${run.parentSessionId}`);
     await parent.inner.sendCustomMessage({
-      customType: "pi-web:subagent-notification",
+      customType: "jiyun-web:subagent-notification",
       content: subagentFinalText(run),
       display: true,
       details: subagentToolDetails(run),

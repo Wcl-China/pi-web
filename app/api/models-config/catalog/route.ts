@@ -19,11 +19,11 @@ interface CatalogCache {
 }
 
 declare global {
-  var __piModelsDevCatalogCache: CatalogCache | undefined;
+  var __jiyunModelsDevCatalogCache: CatalogCache | undefined;
 }
 
 function getCache(): CatalogCache {
-  return globalThis.__piModelsDevCatalogCache ??= { entries: [], expiresAt: 0 };
+  return globalThis.__jiyunModelsDevCatalogCache ??= { entries: [], expiresAt: 0 };
 }
 
 async function fetchCatalog(): Promise<ModelCatalogEntry[]> {

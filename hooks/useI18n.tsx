@@ -5,7 +5,7 @@ import { getLocalePlugin, getSupportedLocales, resolveBrowserLocale } from "@/li
 import { translateMessage } from "@/lib/i18n/format";
 import type { Locale, LocalePlugin, TranslationParams } from "@/lib/i18n/types";
 
-const LOCALE_STORAGE_KEY = "pi-locale";
+const LOCALE_STORAGE_KEY = "jiyun-locale";
 const defaultLocale: Locale = "en";
 
 interface I18nContextValue {
@@ -35,7 +35,7 @@ function readInitialLocale(): Locale {
 }
 
 /**
- * 提供 Pi Web 的界面语言状态和翻译能力。
+ * 提供 Jiyun Web 的界面语言状态和翻译能力。
  * @param props React 子节点
  * @returns 包含语言上下文的 React 节点
  */

@@ -1,4 +1,4 @@
-import type { ResourceDiagnostic } from "@earendil-works/pi-coding-agent";
+import type { ResourceDiagnostic } from "@jiyun-ai/jiyun-coding-agent";
 import type { SubagentProfile } from "./subagents";
 
 export interface SubagentProfilesResponse {

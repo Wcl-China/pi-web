@@ -59,7 +59,7 @@ test("sends the selected scope for saves and the source scope for deletes", () =
 test("shows a Skills-style path row with the same switch in editable and readonly modes", () => {
   assert.match(source, /function displayProfilePath\(profile: SubagentProfile, cwd: string\)/);
   assert.match(source, /profile\.scope === "project" \|\| profile\.scope === "workspace"/);
-  assert.match(source, /`~\/\.pi\/agent\/agents\/\$\{draft\.name \|\| "\.\.\."\}\.md`/);
+  assert.match(source, /`~\/\.jiyun\/agent\/agents\/\$\{draft\.name \|\| "\.\.\."\}\.md`/);
   assert.match(source, /<ConfigSwitch checked=\{draft\.enabled\} disabled=\{disabled\}/);
   assert.doesNotMatch(source, /agents-readonly-status/);
   assert.doesNotMatch(source, /<Toggle label=\{t\("agents\.enabled"\)\}/);

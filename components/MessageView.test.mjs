@@ -78,7 +78,7 @@ test("marks only the matched text block after splitting thinking and the final a
       { type: "text", text: "Process text" },
       { type: "toolCall", toolCallId: "read-1", toolName: "read", input: {} },
       { type: "text", text: "First answer" },
-      { type: "text", text: "Matched pi-cwd-spark answer" },
+      { type: "text", text: "Matched jiyun-cwd-spark answer" },
     ],
   };
   const { processBlocks, answerBlocks } = splitFinalAssistantBlocks(message);
@@ -132,7 +132,7 @@ test("renders subagents as standard tool calls with only an extra session button
     toolCallId: block.toolCallId,
     content: [{ type: "text", text: "Parser is in lib/parser.ts" }],
     details: {
-      kind: "pi-web-subagent",
+      kind: "jiyun-web-subagent",
       sessionId: "child-session",
       profile: "Explore",
       description: "Find parser",

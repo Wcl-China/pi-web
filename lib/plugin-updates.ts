@@ -6,7 +6,7 @@ import {
   DefaultPackageManager,
   getAgentDir,
   SettingsManager,
-} from "@earendil-works/pi-coding-agent";
+} from "@jiyun-ai/jiyun-coding-agent";
 import { gt, maxSatisfying, rcompare, valid, validRange } from "semver";
 import type { PluginScope, PluginUpdateResult } from "@/lib/api-types";
 import { getProjectTrustStatus } from "./project-trust";

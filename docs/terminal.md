@@ -41,7 +41,7 @@ delivery may be ambiguous. Reconnect attaches to the same process with a fresh
 writer; restart explicitly replaces the process.
 
 `bin/prepare-terminal.js` repairs node-pty 1.1.0's macOS spawn-helper executable
-bits during installation, including published/npm-installed Pi Web packages.
+bits during installation, including published/npm-installed Jiyun Web packages.
 
 ## Verification
 

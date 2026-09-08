@@ -4,7 +4,7 @@ import {
   type AgentOptions,
   type AgentTool,
 } from "@earendil-works/pi-agent-core";
-import type { AgentSession } from "@earendil-works/pi-coding-agent";
+import type { AgentSession } from "@jiyun-ai/jiyun-coding-agent";
 
 const TITLE_TIMEOUT_MS = 90_000;
 const MAX_TITLE_LENGTH = 80;

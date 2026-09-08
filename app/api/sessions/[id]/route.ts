@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { existsSync, readdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
-import { SessionManager } from "@earendil-works/pi-coding-agent";
+import { SessionManager } from "@jiyun-ai/jiyun-coding-agent";
 import {
   attachSessionProjectInfo,
   resolveSessionPath,

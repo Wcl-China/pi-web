@@ -1,4 +1,4 @@
-import type { JsonAgentSessionEvent } from "@earendil-works/pi-coding-agent";
+import type { JsonAgentSessionEvent } from "@jiyun-ai/jiyun-coding-agent";
 
 export interface AgentEventLike {
   type: string;
@@ -54,7 +54,7 @@ function toolCallMetadata(
   return id !== null && toolName !== null ? { id, toolName } : null;
 }
 
-/** Apply pi-web's event filters plus Pi 0.84's message_update projection. */
+/** Apply jiyun-web's event filters plus Jiyun 0.84's message_update projection. */
 export function toClientAgentEvent(
   event: AgentEventLike,
 ): AgentEventLike | ClientMessageUpdateEvent | null {

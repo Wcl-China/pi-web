@@ -12,14 +12,14 @@ export { isWindowsAbsolutePath } from "./paths";
 // enough that newly-created cwds appear promptly; stored on globalThis so it
 // survives Next.js hot-reload.
 declare global {
-  var __piAllowedRootsCache: { roots: Set<string>; expiresAt: number } | undefined;
+  var __jiyunAllowedRootsCache: { roots: Set<string>; expiresAt: number } | undefined;
 }
 
 const ALLOWED_ROOTS_TTL_MS = 5_000;
 
 export async function getAllowedFileRoots(): Promise<Set<string>> {
   const now = Date.now();
-  const cached = globalThis.__piAllowedRootsCache;
+  const cached = globalThis.__jiyunAllowedRootsCache;
   if (cached && cached.expiresAt > now) return cached.roots;
 
   const sessions = await listAllSessions();
@@ -31,10 +31,10 @@ export async function getAllowedFileRoots(): Promise<Set<string>> {
     if (s.projectRoot) roots.add(normalizeSlashes(s.projectRoot));
   }
 
-  // Also allow ~/pi-cwd-* directories created by the default-cwd endpoint.
+  // Also allow ~/jiyun-cwd-* directories created by the default-cwd endpoint.
   try {
     for (const name of readdirSync(homedir())) {
-      if (/^pi-cwd-\d{8}$/.test(name)) {
+      if (/^jiyun-cwd-\d{8}$/.test(name)) {
         roots.add(normalizeSlashes(path.join(homedir(), name)));
       }
     }
@@ -44,7 +44,7 @@ export async function getAllowedFileRoots(): Promise<Set<string>> {
 
   for (const root of getAdditionalAllowedRoots()) roots.add(root);
 
-  globalThis.__piAllowedRootsCache = { roots, expiresAt: now + ALLOWED_ROOTS_TTL_MS };
+  globalThis.__jiyunAllowedRootsCache = { roots, expiresAt: now + ALLOWED_ROOTS_TTL_MS };
   return roots;
 }
 

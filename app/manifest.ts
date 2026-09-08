@@ -3,16 +3,16 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "Pi Web",
-    short_name: "Pi Web",
-    description: "Local web interface for the pi coding agent",
+    name: "Jiyun Web",
+    short_name: "Jiyun Web",
+    description: "Jiyun coding agent 的本地 Web 界面",
     start_url: "/",
     scope: "/",
     display: "standalone",
     background_color: "#ffffff",
     theme_color: "#1a1a1a",
     categories: ["developer", "productivity"],
-    lang: "en",
+    lang: "zh-CN",
     icons: [
       {
         src: "/icons/icon-192.png",

@@ -998,7 +998,7 @@ export function ThinkingBlock({ block, duration, sessionId, entryId, blockIndex 
 function isSubagentToolDetails(value: unknown): value is SubagentToolDetails {
   if (!value || typeof value !== "object") return false;
   const details = value as Partial<SubagentToolDetails>;
-  return details.kind === "pi-web-subagent" && typeof details.sessionId === "string";
+  return details.kind === "jiyun-web-subagent" && typeof details.sessionId === "string";
 }
 
 function ToolCallBlock({ block, result, duration, onOpenSession }: { block: ToolCallContent; result?: ToolResultMessage; duration?: number; onOpenSession?: (sessionId: string) => void }) {

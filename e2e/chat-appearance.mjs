@@ -16,8 +16,8 @@ export async function checkChatAppearanceReset(page) {
   assert.equal(await width.inputValue(), "2000", "Resetting font size must preserve width");
   await resetWidth.click();
   assert.deepEqual(await page.evaluate(() => ({
-    width: localStorage.getItem("pi-chat-content-width"),
-    fontSize: localStorage.getItem("pi-chat-content-font-size"),
+    width: localStorage.getItem("jiyun-chat-content-width"),
+    fontSize: localStorage.getItem("jiyun-chat-content-font-size"),
     appliedWidth: document.documentElement.style.getPropertyValue("--chat-content-max-width"),
     appliedFontSize: document.documentElement.style.getPropertyValue("--chat-content-font-size"),
   })), { width: "820", fontSize: "14", appliedWidth: "820px", appliedFontSize: "14px" });
